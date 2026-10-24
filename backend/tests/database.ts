@@ -10,8 +10,10 @@ export async function testDatabase() {
   }
   const client = await new MongoClient(uri, { serverSelectionTimeoutMS: 5000 }).connect();
   const db = client.db(`${databaseName}_${randomUUID().replaceAll('-', '')}`);
+  const isolatedUri = new URL(uri);
+  isolatedUri.pathname = `/${db.databaseName}`;
   return {
-    db,
+    db, uri: isolatedUri.toString(),
     async close() {
       await db.dropDatabase();
       await client.close();
