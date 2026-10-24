@@ -1,0 +1,14 @@
+node_modules/
+dist/
+coverage/
+reports/
+playwright-report/
+test-results/
+.tools/
+.local/
+tmp/
+screenshots/
+PROMPTS.md
+package-lock.json
+.env
+.env.*

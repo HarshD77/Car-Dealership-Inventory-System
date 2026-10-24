@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites name="vitest tests" tests="80" failures="0" errors="0" time="12.8173728">
+    <testsuite name="tests/auth.test.ts" timestamp="2026-10-24T17:35:28.263Z" hostname="DESKTOP-OOQ13MG" tests="18" failures="0" errors="0" skipped="0" time="8.2293099">
+        <testcase classname="tests/auth.test.ts" name="registration &gt; registers a regular user and persists a hash without returning it" time="1.803053">
+        </testcase>
+        <testcase classname="tests/auth.test.ts" name="registration &gt; rejects duplicate normalized email addresses, including racing registrations" time="1.4095031">
+        </testcase>
+        <testcase classname="tests/auth.test.ts" name="registration &gt; rejects invalid credentials {}" time="0.0077902">
+        </testcase>
+        <testcase classname="tests/auth.test.ts" name="registration &gt; rejects invalid credentials {&quot;email&quot;:&quot;not-an-email&quot;,&quot;password&quot;:&quot;correct-horse-42&quot;}" time="0.0059384">
+        </testcase>
+        <testcase classname="tests/auth.test.ts" name="registration &gt; rejects invalid credentials {&quot;email&quot;:&quot;short@example.com&quot;,&quot;password&quot;:&quot;short&quot;}" time="0.0109284">
+        </testcase>
+        <testcase classname="tests/auth.test.ts" name="registration &gt; rejects invalid credentials {&quot;email&quot;:&quot;long@example.com&quot;,&quot;password&quot;:&quot;xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx&quot;}" time="0.0055529">
+        </testcase>
+        <testcase classname="tests/auth.test.ts" name="registration &gt; rejects invalid credentials {&quot;email&quot;:&quot;unicode@example.com&quot;,&quot;password&quot;:&quot;界界界界界界界界界界界界界界界界界界界界界界界界界&quot;}" time="0.0047571">
+        </testcase>
+        <testcase classname="tests/auth.test.ts" name="registration &gt; logs in with a normalized email and returns only public user fields" time="0.9402375">
+        </testcase>
+        <testcase classname="tests/auth.test.ts" name="registration &gt; rejects bad login without disclosing whether email exists" time="0.6989362">
+        </testcase>
+        <testcase classname="tests/auth.test.ts" name="registration &gt; rejects bad login without disclosing whether email exists" time="1.4629874">
+        </testcase>
+        <testcase classname="tests/auth.test.ts" name="registration &gt; rejects malformed login inputs" time="0.01496">
+        </testcase>
+        <testcase classname="tests/auth.test.ts" name="registration &gt; requires a valid unexpired token for every vehicle route (case 0)" time="0.1232851">
+        </testcase>
+        <testcase classname="tests/auth.test.ts" name="registration &gt; requires a valid unexpired token for every vehicle route (case 1)" time="0.0552366">
+        </testcase>
+        <testcase classname="tests/auth.test.ts" name="registration &gt; requires a valid unexpired token for every vehicle route (case 2)" time="0.0446366">
+        </testcase>
+        <testcase classname="tests/auth.test.ts" name="registration &gt; requires a valid unexpired token for every vehicle route (case 3)" time="0.0677037">
+        </testcase>
+        <testcase classname="tests/auth.test.ts" name="registration &gt; requires a valid unexpired token for every vehicle route (case 4)" time="0.0564789">
+        </testcase>
+        <testcase classname="tests/auth.test.ts" name="registration &gt; requires a valid unexpired token for every vehicle route (case 5)" time="0.0469961">
+        </testcase>
+        <testcase classname="tests/auth.test.ts" name="registration &gt; requires a valid unexpired token for every vehicle route (case 6)" time="0.0890837">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/config.test.ts" timestamp="2026-10-24T17:35:28.278Z" hostname="DESKTOP-OOQ13MG" tests="9" failures="0" errors="0" skipped="0" time="0.0152656">
+        <testcase classname="tests/config.test.ts" name="server configuration &gt; reads the connection and secret, and defaults the port" time="0.0057666">
+        </testcase>
+        <testcase classname="tests/config.test.ts" name="server configuration &gt; rejects unsafe or incomplete configuration 0" time="0.0021632">
+        </testcase>
+        <testcase classname="tests/config.test.ts" name="server configuration &gt; rejects unsafe or incomplete configuration 1" time="0.0006715">
+        </testcase>
+        <testcase classname="tests/config.test.ts" name="server configuration &gt; rejects unsafe or incomplete configuration 2" time="0.0005397">
+        </testcase>
+        <testcase classname="tests/config.test.ts" name="server configuration &gt; rejects unsafe or incomplete configuration 3" time="0.0004542">
+        </testcase>
+        <testcase classname="tests/config.test.ts" name="server configuration &gt; rejects unsafe or incomplete configuration 4" time="0.0006562">
+        </testcase>
+        <testcase classname="tests/config.test.ts" name="server configuration &gt; rejects unsafe or incomplete configuration 5" time="0.0009428">
+        </testcase>
+        <testcase classname="tests/config.test.ts" name="server configuration &gt; rejects unsafe or incomplete configuration 6" time="0.0005269">
+        </testcase>
+        <testcase classname="tests/config.test.ts" name="server configuration &gt; rejects unsafe or incomplete configuration 7" time="0.000514">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/http.test.ts" timestamp="2026-10-24T17:35:28.281Z" hostname="DESKTOP-OOQ13MG" tests="4" failures="0" errors="0" skipped="0" time="2.1935421">
+        <testcase classname="tests/http.test.ts" name="HTTP errors and persistent connection lifecycle &gt; preserves users across closing connections and recreating the application" time="2.0140619">
+        </testcase>
+        <testcase classname="tests/http.test.ts" name="HTTP errors and persistent connection lifecycle &gt; returns JSON errors for malformed JSON and oversized requests" time="0.0745679">
+        </testcase>
+        <testcase classname="tests/http.test.ts" name="HTTP errors and persistent connection lifecycle &gt; returns JSON for unknown API routes" time="0.0112458">
+        </testcase>
+        <testcase classname="tests/http.test.ts" name="HTTP errors and persistent connection lifecycle &gt; does not disclose database errors to the client" time="0.0326022">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/vehicles.test.ts" timestamp="2026-10-24T17:35:28.283Z" hostname="DESKTOP-OOQ13MG" tests="49" failures="0" errors="0" skipped="0" time="2.3792552">
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; allows an authenticated regular user to create a persistent vehicle" time="0.391155">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; lists vehicles including zero-stock vehicles" time="0.0449782">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; returns an empty array for an empty inventory" time="0.014095">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; rejects invalid vehicle input 0" time="0.0145607">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; rejects invalid vehicle input 1" time="0.0143748">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; rejects invalid vehicle input 2" time="0.0128884">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; rejects invalid vehicle input 3" time="0.0127189">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; rejects invalid vehicle input 4" time="0.0109012">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; rejects invalid vehicle input 5" time="0.0135603">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; rejects invalid vehicle input 6" time="0.0131357">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; rejects invalid vehicle input 7" time="0.0116667">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; rejects invalid vehicle input 8" time="0.0116805">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; rejects invalid vehicle input 9" time="0.0125361">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; rejects invalid vehicle input 10" time="0.0131003">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; rejects invalid vehicle input 11" time="0.0128773">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; rejects invalid vehicle input 12" time="0.0124456">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; combines case-insensitive text filters and inclusive price bounds" time="0.0532126">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; supports individual filters, no filters, and no matches" time="0.0805736">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; treats regex characters as literal search text" time="0.0563117">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; rejects invalid search filters 0" time="0.0107545">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; rejects invalid search filters 1" time="0.0096237">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; rejects invalid search filters 2" time="0.0088209">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; rejects invalid search filters 3" time="0.0088168">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; rejects invalid search filters 4" time="0.0084738">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; rejects invalid search filters 5" time="0.0087572">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; rejects invalid search filters 6" time="0.0087164">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; rejects invalid search filters 7" time="0.0073106">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; allows regular users to replace vehicle details and keeps its ID" time="0.0286321">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; rejects incomplete and invalid replacements without changing the vehicle" time="0.0352539">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; allows admins to delete vehicles and forbids regular users" time="0.0349415">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; checks the stored role even if an old token belongs to a former admin" time="0.0202844">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; handles invalid and nonexistent IDs on put" time="0.0187777">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; handles invalid and nonexistent IDs on delete" time="0.0166387">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; purchases exactly one unit and persists the new stock" time="0.0239934">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; rejects purchases of sold-out vehicles without changing stock" time="0.0250607">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; allows only one of twelve concurrent purchases of the last unit" time="0.1275589">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; rejects client-specified purchase quantities" time="0.0237108">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; allows only admins to restock and adds quantities atomically" time="0.0370797">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; rejects invalid restocking 0" time="0.0196999">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; rejects invalid restocking 1" time="0.0203635">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; rejects invalid restocking 2" time="0.019074">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; rejects invalid restocking 3" time="0.0212849">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; rejects invalid restocking 4" time="0.0225711">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; rejects invalid restocking 5" time="0.018909">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; rejects invalid restocking 6" time="0.0184634">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; rejects invalid restocking 7" time="0.0212275">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; prevents stock integer overflow" time="0.021881">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; handles invalid and missing IDs for purchase" time="0.0188479">
+        </testcase>
+        <testcase classname="tests/vehicles.test.ts" name="vehicle inventory &gt; handles invalid and missing IDs for restock" time="0.0263625">
+        </testcase>
+    </testsuite>
+</testsuites>
