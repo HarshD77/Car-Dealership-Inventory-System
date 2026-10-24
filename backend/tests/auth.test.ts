@@ -28,4 +28,22 @@ describe('registration', () => {
     expect(await bcrypt.compare('correct-horse-42', stored!.passwordHash)).toBe(true);
     expect(stored?.role).toBe('user');
   });
+
+  it('rejects duplicate normalized email addresses, including racing registrations', async () => {
+    const attempts = await Promise.all([
+      request(app).post('/api/auth/register').send({ email: 'same@example.com', password: 'correct-horse-42' }),
+      request(app).post('/api/auth/register').send({ email: ' SAME@EXAMPLE.COM ', password: 'different-pass-42' })
+    ]);
+    expect(attempts.map(result => result.status).sort()).toEqual([201, 409]);
+    expect(await database.db.collection('users').countDocuments({ email: 'same@example.com' })).toBe(1);
+  });
+
+  it.each([
+    {}, { email: 'not-an-email', password: 'correct-horse-42' },
+    { email: 'short@example.com', password: 'short' },
+    { email: 'long@example.com', password: 'x'.repeat(73) },
+    { email: 'unicode@example.com', password: '界'.repeat(25) }
+  ])('rejects invalid credentials %j', async input => {
+    expect((await request(app).post('/api/auth/register').send(input)).status).toBe(400);
+  });
 });
