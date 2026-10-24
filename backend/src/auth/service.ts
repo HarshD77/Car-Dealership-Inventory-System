@@ -10,6 +10,7 @@ const credentials = z.object({
   password: z.string().min(8).refine(value => Buffer.byteLength(value, 'utf8') <= 72,
     'Password must be at most 72 UTF-8 bytes')
 });
+const dummyPasswordHash = bcrypt.hashSync('unused-password-for-timing', 12);
 
 export function authResult(user: UserDocument, secret: string) {
   return {
@@ -22,9 +23,14 @@ export function authResult(user: UserDocument, secret: string) {
 }
 
 export async function register(db: Db, secret: string, input: unknown) {
+  return authResult(await createUser(db, input, 'user'), secret);
+}
+
+// The role argument is chosen by server code, never from a registration body.
+export async function createUser(db: Db, input: unknown, role: UserDocument['role']) {
   const { email, password } = credentials.parse(input);
   const user: UserDocument = {
-    _id: new ObjectId(), email, passwordHash: await bcrypt.hash(password, 12), role: 'user'
+    _id: new ObjectId(), email, passwordHash: await bcrypt.hash(password, 12), role
   };
   try {
     await users(db).insertOne(user);
@@ -34,14 +40,14 @@ export async function register(db: Db, secret: string, input: unknown) {
     }
     throw error;
   }
-  return authResult(user, secret);
+  return user;
 }
 
 export async function login(db: Db, secret: string, input: unknown) {
   const { email, password } = credentials.parse(input);
   const user = await users(db).findOne({ email });
   // Spend the same hashing work on unknown emails, too.
-  const hash = user?.passwordHash ?? await bcrypt.hash('dummy-password-for-timing', 12);
+  const hash = user?.passwordHash ?? dummyPasswordHash;
   const matches = await bcrypt.compare(password, hash);
   if (!user || !matches) throw new HttpError(401, 'Email or password is incorrect');
   return authResult(user, secret);
