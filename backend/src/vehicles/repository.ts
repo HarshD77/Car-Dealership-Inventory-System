@@ -39,3 +39,12 @@ export async function deleteVehicle(db: Db, id: ObjectId) {
   const result = await vehicles(db).deleteOne({ _id: id });
   if (!result.deletedCount) throw new HttpError(404, 'Vehicle not found');
 }
+
+export async function changeStock(db: Db, id: ObjectId, change: number) {
+  // The stock condition and increment happen in ONE MongoDB write.
+  // Checking stock in a separate read before writing would allow overselling.
+  const quantity = change < 0 ? { $gte: -change } : { $lte: Number.MAX_SAFE_INTEGER - change };
+  return vehicles(db).findOneAndUpdate(
+    { _id: id, quantity }, { $inc: { quantity: change } }, { returnDocument: 'after' }
+  );
+}

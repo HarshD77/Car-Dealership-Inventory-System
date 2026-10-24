@@ -24,3 +24,8 @@ export const searchInput = z.object({
   value.minPrice <= value.maxPrice, 'Minimum price must not exceed maximum price');
 
 export type SearchInput = z.infer<typeof searchInput>;
+
+export const purchaseInput = z.object({}).strict();
+export const restockInput = z.object({
+  quantity: z.number().int().positive().max(Number.MAX_SAFE_INTEGER)
+}).strict();
