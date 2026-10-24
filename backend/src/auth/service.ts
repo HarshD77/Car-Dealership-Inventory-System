@@ -36,3 +36,13 @@ export async function register(db: Db, secret: string, input: unknown) {
   }
   return authResult(user, secret);
 }
+
+export async function login(db: Db, secret: string, input: unknown) {
+  const { email, password } = credentials.parse(input);
+  const user = await users(db).findOne({ email });
+  // Spend the same hashing work on unknown emails, too.
+  const hash = user?.passwordHash ?? await bcrypt.hash('dummy-password-for-timing', 12);
+  const matches = await bcrypt.compare(password, hash);
+  if (!user || !matches) throw new HttpError(401, 'Email or password is incorrect');
+  return authResult(user, secret);
+}
