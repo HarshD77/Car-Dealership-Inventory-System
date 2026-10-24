@@ -20,7 +20,7 @@ async function signIn() {
   const user = userEvent.setup();
   await user.type(screen.getByLabelText('Email address'), 'driver@example.com');
   await user.type(screen.getByLabelText('Password'), 'correct-horse-42');
-  await user.click(screen.getByRole('button', { name: 'Sign in', exact: true }));
+  await user.click(screen.getByRole('button', { name: 'Sign in' }));
   return user;
 }
 
@@ -48,7 +48,7 @@ describe('authentication and inventory dashboard', () => {
     await user.click(screen.getByRole('button', { name: 'Create an account' }));
     await user.type(screen.getByLabelText('Email address'), 'new@example.com');
     await user.type(screen.getByLabelText('Password'), 'correct-horse-42');
-    await user.click(screen.getByRole('button', { name: 'Create account', exact: true }));
+    await user.click(screen.getByRole('button', { name: 'Create account' }));
     expect(await screen.findByText('No vehicles yet')).toBeInTheDocument();
     expect(fetchMock.mock.calls[0][0]).toBe('/api/auth/register');
     expect(JSON.parse(fetchMock.mock.calls[0][1]!.body as string)).not.toHaveProperty('role');
@@ -78,7 +78,7 @@ describe('authentication and inventory dashboard', () => {
     render(<App />);
     await signIn();
     expect(await screen.findByRole('alert')).toHaveTextContent('Email or password is incorrect');
-    expect(screen.getByRole('button', { name: 'Sign in', exact: true })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Sign in' })).toBeEnabled();
   });
 
   it('prevents duplicate login submissions while pending', async () => {
