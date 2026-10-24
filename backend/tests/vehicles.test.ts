@@ -103,4 +103,48 @@ describe('vehicle inventory', () => {
   ])('rejects invalid search filters %#', async query => {
     expect((await request(app).get('/api/vehicles/search').query(query).auth(userToken, { type: 'bearer' })).status).toBe(400);
   });
+
+  it('allows regular users to replace vehicle details and keeps its ID', async () => {
+    const original = await create();
+    const updated = { ...vehicle, model: 'XC90', price: 6500000, quantity: 2 };
+    const response = await request(app).put(`/api/vehicles/${original.body.id}`).auth(userToken, { type: 'bearer' }).send(updated);
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ ...updated, id: original.body.id });
+    const stored = await database.db.collection('vehicles').findOne({ _id: new ObjectId(original.body.id) });
+    expect(stored?.model).toBe('XC90');
+  });
+
+  it('rejects incomplete and invalid replacements without changing the vehicle', async () => {
+    const original = await create();
+    for (const input of [{ model: 'XC90' }, { ...vehicle, quantity: -2 }, { ...vehicle, price: 1.1 }]) {
+      expect((await request(app).put(`/api/vehicles/${original.body.id}`).auth(userToken, { type: 'bearer' }).send(input)).status).toBe(400);
+    }
+    expect((await database.db.collection('vehicles').findOne())?.quantity).toBe(3);
+  });
+
+  it('allows admins to delete vehicles and forbids regular users', async () => {
+    const original = await create();
+    expect((await request(app).delete(`/api/vehicles/${original.body.id}`).auth(userToken, { type: 'bearer' })).status).toBe(403);
+    expect(await database.db.collection('vehicles').countDocuments()).toBe(1);
+    const response = await request(app).delete(`/api/vehicles/${original.body.id}`).auth(adminToken, { type: 'bearer' });
+    expect(response.status).toBe(204);
+    expect(await database.db.collection('vehicles').countDocuments()).toBe(0);
+  });
+
+  it('checks the stored role even if an old token belongs to a former admin', async () => {
+    await database.db.collection('users').updateOne({ email: 'admin@example.com' }, { $set: { role: 'user' } });
+    try {
+      expect((await request(app).delete(`/api/vehicles/${new ObjectId()}`).auth(adminToken, { type: 'bearer' })).status).toBe(403);
+    } finally {
+      await database.db.collection('users').updateOne({ email: 'admin@example.com' }, { $set: { role: 'admin' } });
+    }
+  });
+
+  it.each(['put', 'delete'] as const)('handles invalid and nonexistent IDs on %s', async method => {
+    for (const [id, status] of [['invalid-id', 400], [new ObjectId().toHexString(), 404]] as const) {
+      const response = await request(app)[method](`/api/vehicles/${id}`).auth(adminToken, { type: 'bearer' }).send(vehicle);
+      expect(response.status).toBe(status);
+      expect(response.body.error).toEqual(expect.any(String));
+    }
+  });
 });
