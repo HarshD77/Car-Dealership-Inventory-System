@@ -1,5 +1,6 @@
 import { ObjectId, type Db, type Filter } from 'mongodb';
 import type { SearchInput, VehicleInput } from './validation.js';
+import { HttpError } from '../errors.js';
 
 export interface VehicleDocument extends VehicleInput { _id: ObjectId }
 export const vehicles = (db: Db) => db.collection<VehicleDocument>('vehicles');
@@ -26,4 +27,15 @@ export async function listVehicles(db: Db, search: SearchInput = {}) {
     };
   }
   return (await vehicles(db).find(filter).sort({ make: 1, model: 1, _id: 1 }).toArray()).map(publicVehicle);
+}
+
+export async function replaceVehicle(db: Db, id: ObjectId, input: VehicleInput) {
+  const result = await vehicles(db).findOneAndUpdate({ _id: id }, { $set: input }, { returnDocument: 'after' });
+  if (!result) throw new HttpError(404, 'Vehicle not found');
+  return publicVehicle(result);
+}
+
+export async function deleteVehicle(db: Db, id: ObjectId) {
+  const result = await vehicles(db).deleteOne({ _id: id });
+  if (!result.deletedCount) throw new HttpError(404, 'Vehicle not found');
 }

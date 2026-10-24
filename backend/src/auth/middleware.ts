@@ -25,3 +25,8 @@ export function authenticate(db: Db, secret: string): RequestHandler {
     next();
   };
 }
+
+export const requireAdmin: RequestHandler = (_req, res, next) => {
+  if (res.locals.user.role !== 'admin') throw new HttpError(403, 'Admin access required');
+  next();
+};

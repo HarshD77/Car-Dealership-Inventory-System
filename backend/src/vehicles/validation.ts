@@ -1,4 +1,8 @@
 import { z } from 'zod';
+import { ObjectId } from 'mongodb';
+
+export const vehicleId = z.string().regex(/^[a-fA-F0-9]{24}$/, 'Invalid vehicle ID')
+  .transform(value => new ObjectId(value));
 
 const text = z.string().trim().min(1).max(100);
 export const vehicleInput = z.object({
