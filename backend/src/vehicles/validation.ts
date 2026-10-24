@@ -10,3 +10,13 @@ export const vehicleInput = z.object({
 }).strict();
 
 export type VehicleInput = z.infer<typeof vehicleInput>;
+
+const queryPrice = z.string().regex(/^\d+$/, 'Price must be a nonnegative integer in cents')
+  .transform(Number).pipe(z.number().int().max(Number.MAX_SAFE_INTEGER)).optional();
+export const searchInput = z.object({
+  make: text.optional(), model: text.optional(), category: text.optional(),
+  minPrice: queryPrice, maxPrice: queryPrice
+}).strict().refine(value => value.minPrice === undefined || value.maxPrice === undefined ||
+  value.minPrice <= value.maxPrice, 'Minimum price must not exceed maximum price');
+
+export type SearchInput = z.infer<typeof searchInput>;

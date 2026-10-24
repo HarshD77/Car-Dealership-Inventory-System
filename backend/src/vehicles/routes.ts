@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import type { Db } from 'mongodb';
 import { insertVehicle, listVehicles } from './repository.js';
-import { vehicleInput } from './validation.js';
+import { searchInput, vehicleInput } from './validation.js';
 
 export function vehicleRoutes(db: Db) {
   const router = Router();
@@ -10,6 +10,9 @@ export function vehicleRoutes(db: Db) {
   });
   router.get('/', async (_req, res) => {
     res.json(await listVehicles(db));
+  });
+  router.get('/search', async (req, res) => {
+    res.json(await listVehicles(db, searchInput.parse(req.query)));
   });
   return router;
 }
