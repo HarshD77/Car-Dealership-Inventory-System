@@ -64,4 +64,43 @@ describe('vehicle inventory', () => {
     expect((await request(app).post('/api/vehicles').auth(userToken, { type: 'bearer' }).send(input)).status).toBe(400);
     expect(await database.db.collection('vehicles').countDocuments()).toBe(0);
   });
+
+  it('combines case-insensitive text filters and inclusive price bounds', async () => {
+    await create();
+    await create({ ...vehicle, model: 'S60', category: 'Sedan', price: 3000000 });
+    await create({ ...vehicle, make: 'Toyota', model: 'RAV4', price: 3500000 });
+    const response = await request(app).get('/api/vehicles/search')
+      .query({ make: 'VOL', model: 'xc', category: 'su', minPrice: '4890000', maxPrice: '4890000' })
+      .auth(userToken, { type: 'bearer' });
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual([{ ...vehicle, id: expect.any(String) }]);
+  });
+
+  it('supports individual filters, no filters, and no matches', async () => {
+    await create();
+    for (const query of [{ make: 'Volvo' }, { model: 'XC60' }, { category: 'SUV' }, { minPrice: '0' }, { maxPrice: '5000000' }, {}]) {
+      const response = await request(app).get('/api/vehicles/search').query(query).auth(userToken, { type: 'bearer' });
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveLength(1);
+    }
+    const response = await request(app).get('/api/vehicles/search').query({ make: 'missing' }).auth(userToken, { type: 'bearer' });
+    expect(response.body).toEqual([]);
+  });
+
+  it('treats regex characters as literal search text', async () => {
+    await create();
+    await create({ ...vehicle, make: 'A+B' });
+    const response = await request(app).get('/api/vehicles/search').query({ make: 'A+B' }).auth(userToken, { type: 'bearer' });
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveLength(1);
+    expect(response.body[0].make).toBe('A+B');
+  });
+
+  it.each([
+    { minPrice: '-1' }, { maxPrice: '1.5' }, { minPrice: 'abc' },
+    { minPrice: '20', maxPrice: '10' }, { minPrice: '' },
+    { minPrice: '9007199254740992' }, { make: ['Volvo', 'Toyota'] }, { unknown: 'x' }
+  ])('rejects invalid search filters %#', async query => {
+    expect((await request(app).get('/api/vehicles/search').query(query).auth(userToken, { type: 'bearer' })).status).toBe(400);
+  });
 });
