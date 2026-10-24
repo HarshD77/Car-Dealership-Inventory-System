@@ -1,6 +1,8 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import request from 'supertest';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { ObjectId } from 'mongodb';
 import { createApp } from '../src/app.js';
 import { testDatabase } from './database.js';
 import { initializeDatabase } from '../src/database.js';
@@ -47,5 +49,58 @@ describe('registration', () => {
     { email: 'unicode@example.com', password: '界'.repeat(25) }
   ])('rejects invalid credentials %j', async input => {
     expect((await request(app).post('/api/auth/register').send(input)).status).toBe(400);
+  });
+
+  it('logs in with a normalized email and returns only public user fields', async () => {
+    const response = await request(app).post('/api/auth/login').send({
+      email: 'DRIVER@example.com', password: 'correct-horse-42'
+    });
+    expect(response.status).toBe(200);
+    expect(response.body.user.email).toBe('driver@example.com');
+    expect(response.body.user.role).toBe('user');
+    expect(JSON.stringify(response.body)).not.toContain('password');
+    const claims = jwt.verify(response.body.token, 'test-only-secret-with-at-least-32-characters');
+    expect(claims).toMatchObject({ sub: response.body.user.id });
+  });
+
+  it.each([
+    { email: 'driver@example.com', password: 'wrong-password' },
+    { email: 'missing@example.com', password: 'correct-horse-42' }
+  ])('rejects bad login without disclosing whether email exists', async input => {
+    const response = await request(app).post('/api/auth/login').send(input);
+    expect(response.status).toBe(401);
+    expect(response.body).toEqual({ error: 'Email or password is incorrect' });
+  });
+
+  it('rejects malformed login inputs', async () => {
+    expect((await request(app).post('/api/auth/login').send({})).status).toBe(400);
+  });
+
+  it.each([
+    undefined,
+    'Bearer nonsense',
+    'Basic abc',
+    `Bearer ${jwt.sign({}, 'test-only-secret-with-at-least-32-characters', {
+      subject: new ObjectId().toHexString(), expiresIn: -1,
+      issuer: 'car-dealership', audience: 'car-dealership-ui'
+    })}`,
+    `Bearer ${jwt.sign({}, 'different-secret', { subject: new ObjectId().toHexString() })}`,
+    `Bearer ${jwt.sign({}, 'test-only-secret-with-at-least-32-characters', {
+      subject: 'not-an-id', issuer: 'car-dealership', audience: 'car-dealership-ui'
+    })}`,
+    `Bearer ${jwt.sign({}, 'test-only-secret-with-at-least-32-characters', {
+      subject: new ObjectId().toHexString(), issuer: 'car-dealership', audience: 'car-dealership-ui'
+    })}`
+  ])('requires a valid unexpired token for every vehicle route (case %#)', async token => {
+    const routes = [
+      ['get', '/api/vehicles'], ['post', '/api/vehicles'], ['get', '/api/vehicles/search'],
+      ['put', '/api/vehicles/123'], ['delete', '/api/vehicles/123'],
+      ['post', '/api/vehicles/123/purchase'], ['post', '/api/vehicles/123/restock']
+    ] as const;
+    for (const [method, route] of routes) {
+      const call = request(app)[method](route);
+      if (token) call.set('Authorization', token);
+      expect((await call).status, `${method} ${route}`).toBe(401);
+    }
   });
 });
