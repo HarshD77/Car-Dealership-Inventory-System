@@ -147,4 +147,67 @@ describe('vehicle inventory', () => {
       expect(response.body.error).toEqual(expect.any(String));
     }
   });
+
+  it('purchases exactly one unit and persists the new stock', async () => {
+    const original = await create();
+    const response = await request(app).post(`/api/vehicles/${original.body.id}/purchase`).auth(userToken, { type: 'bearer' });
+    expect(response.status).toBe(200);
+    expect(response.body.quantity).toBe(2);
+    expect((await database.db.collection('vehicles').findOne())?.quantity).toBe(2);
+  });
+
+  it('rejects purchases of sold-out vehicles without changing stock', async () => {
+    const original = await create({ ...vehicle, quantity: 0 });
+    const response = await request(app).post(`/api/vehicles/${original.body.id}/purchase`).auth(userToken, { type: 'bearer' });
+    expect(response.status).toBe(409);
+    expect(response.body.error).toBe('Vehicle is out of stock');
+    expect((await database.db.collection('vehicles').findOne())?.quantity).toBe(0);
+  });
+
+  it('allows only one of twelve concurrent purchases of the last unit', async () => {
+    const original = await create({ ...vehicle, quantity: 1 });
+    const results = await Promise.all(Array.from({ length: 12 }, () =>
+      request(app).post(`/api/vehicles/${original.body.id}/purchase`).auth(userToken, { type: 'bearer' })));
+    expect(results.filter(result => result.status === 200)).toHaveLength(1);
+    expect(results.filter(result => result.status === 409)).toHaveLength(11);
+    expect((await database.db.collection('vehicles').findOne())?.quantity).toBe(0);
+  });
+
+  it('rejects client-specified purchase quantities', async () => {
+    const original = await create();
+    const response = await request(app).post(`/api/vehicles/${original.body.id}/purchase`).auth(userToken, { type: 'bearer' }).send({ quantity: -1 });
+    expect(response.status).toBe(400);
+    expect((await database.db.collection('vehicles').findOne())?.quantity).toBe(3);
+  });
+
+  it('allows only admins to restock and adds quantities atomically', async () => {
+    const original = await create({ ...vehicle, quantity: 0 });
+    expect((await request(app).post(`/api/vehicles/${original.body.id}/restock`).auth(userToken, { type: 'bearer' }).send({ quantity: 2 })).status).toBe(403);
+    const results = await Promise.all([2, 3].map(quantity => request(app).post(`/api/vehicles/${original.body.id}/restock`)
+      .auth(adminToken, { type: 'bearer' }).send({ quantity })));
+    expect(results.every(result => result.status === 200)).toBe(true);
+    expect((await database.db.collection('vehicles').findOne())?.quantity).toBe(5);
+  });
+
+  it.each([{}, { quantity: 0 }, { quantity: -1 }, { quantity: 1.1 }, { quantity: '2' }, { quantity: null },
+    { quantity: Number.MAX_SAFE_INTEGER + 1 }, { quantity: 1, extra: true }])('rejects invalid restocking %#', async input => {
+    const original = await create();
+    expect((await request(app).post(`/api/vehicles/${original.body.id}/restock`).auth(adminToken, { type: 'bearer' }).send(input)).status).toBe(400);
+    expect((await database.db.collection('vehicles').findOne())?.quantity).toBe(3);
+  });
+
+  it('prevents stock integer overflow', async () => {
+    const original = await create({ ...vehicle, quantity: Number.MAX_SAFE_INTEGER });
+    expect((await request(app).post(`/api/vehicles/${original.body.id}/restock`).auth(adminToken, { type: 'bearer' }).send({ quantity: 1 })).status).toBe(409);
+    expect((await database.db.collection('vehicles').findOne())?.quantity).toBe(Number.MAX_SAFE_INTEGER);
+  });
+
+  it.each(['purchase', 'restock'])('handles invalid and missing IDs for %s', async action => {
+    for (const [id, status] of [['invalid', 400], [new ObjectId().toHexString(), 404]] as const) {
+      const response = await request(app).post(`/api/vehicles/${id}/${action}`).auth(adminToken, { type: 'bearer' })
+        .send(action === 'restock' ? { quantity: 1 } : {});
+      expect(response.status).toBe(status);
+      expect(response.body.error).toEqual(expect.any(String));
+    }
+  });
 });
