@@ -3,12 +3,14 @@ import request from 'supertest';
 import bcrypt from 'bcryptjs';
 import { createApp } from '../src/app.js';
 import { testDatabase } from './database.js';
+import { initializeDatabase } from '../src/database.js';
 
 describe('registration', () => {
   let database: Awaited<ReturnType<typeof testDatabase>>;
   let app: ReturnType<typeof createApp>;
   beforeAll(async () => {
     database = await testDatabase();
+    await initializeDatabase(database.db);
     app = createApp(database.db, 'test-only-secret-with-at-least-32-characters');
   });
   afterAll(async () => { await database?.close(); });

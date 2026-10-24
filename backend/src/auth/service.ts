@@ -1,8 +1,9 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { ObjectId, type Db } from 'mongodb';
+import { MongoServerError, ObjectId, type Db } from 'mongodb';
 import { z } from 'zod';
 import { users, type UserDocument } from '../database.js';
+import { HttpError } from '../errors.js';
 
 const credentials = z.object({
   email: z.string().trim().toLowerCase().email().max(254),
@@ -25,6 +26,13 @@ export async function register(db: Db, secret: string, input: unknown) {
   const user: UserDocument = {
     _id: new ObjectId(), email, passwordHash: await bcrypt.hash(password, 12), role: 'user'
   };
-  await users(db).insertOne(user);
+  try {
+    await users(db).insertOne(user);
+  } catch (error) {
+    if (error instanceof MongoServerError && error.code === 11000) {
+      throw new HttpError(409, 'An account with that email already exists');
+    }
+    throw error;
+  }
   return authResult(user, secret);
 }
