@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { act, render, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from './App';
 
@@ -7,6 +7,117 @@ const car = { id: '123', make: 'Volvo', model: 'XC60', category: 'SUV', price: 4
 const session = { token: 'test-token', user: { id: 'user-id', email: 'driver@example.com', role: 'user' } };
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), {
   status, headers: { 'Content-Type': 'application/json' }
+});
+
+describe('admin inventory forms', () => {
+  beforeEach(() => {
+    sessionStorage.setItem('dealership-session', JSON.stringify({ ...session, user: { ...session.user, role: 'admin' } }));
+    fetchMock.mockResolvedValueOnce(json([car]));
+  });
+
+  it('adds a vehicle with integer-cent pricing and reloads inventory', async () => {
+    const added = { ...car, id: '456', make: 'Toyota', model: 'Corolla', category: 'Sedan', price: 2500001, quantity: 4 };
+    fetchMock.mockResolvedValueOnce(json(added, 201)).mockResolvedValueOnce(json([car, added]));
+    render(<App />);
+    await screen.findByRole('heading', { name: 'XC60' });
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('button', { name: 'Add vehicle' }));
+    const dialog = within(screen.getByRole('dialog'));
+    for (const [label, value] of [['Make', 'Toyota'], ['Model', 'Corolla'], ['Category', 'Sedan'], ['Price ($)', '25000.01'], ['Quantity in stock', '4']]) {
+      await user.clear(dialog.getByLabelText(label));
+      await user.type(dialog.getByLabelText(label), value);
+    }
+    await user.click(dialog.getByRole('button', { name: 'Save vehicle' }));
+    expect(await screen.findByRole('heading', { name: 'Corolla' })).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('Vehicle added');
+    expect(fetchMock.mock.calls[1][0]).toBe('/api/vehicles');
+    expect(JSON.parse(fetchMock.mock.calls[1][1]!.body as string)).toEqual({ make: 'Toyota', model: 'Corolla', category: 'Sedan', price: 2500001, quantity: 4 });
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('prefills and updates a vehicle with the full replacement contract', async () => {
+    const updated = { ...car, model: 'XC90', price: 4000001 };
+    fetchMock.mockResolvedValueOnce(json(updated)).mockResolvedValueOnce(json([updated]));
+    render(<App />);
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole('button', { name: 'Edit' }));
+    const dialog = within(screen.getByRole('dialog'));
+    expect(dialog.getByLabelText('Price ($)')).toHaveValue('48900.00');
+    await user.clear(dialog.getByLabelText('Model'));
+    await user.type(dialog.getByLabelText('Model'), 'XC90');
+    await user.clear(dialog.getByLabelText('Price ($)'));
+    await user.type(dialog.getByLabelText('Price ($)'), '40000.01');
+    await user.click(dialog.getByRole('button', { name: 'Save vehicle' }));
+    expect(await screen.findByRole('heading', { name: 'XC90' })).toBeInTheDocument();
+    expect(fetchMock.mock.calls[1][1]!.method).toBe('PUT');
+    const { id: _id, ...input } = updated;
+    expect(JSON.parse(fetchMock.mock.calls[1][1]!.body as string)).toEqual(input);
+  });
+
+  it('restocks using a positive integer and refreshes stock', async () => {
+    fetchMock.mockResolvedValueOnce(json({ ...car, quantity: 7 })).mockResolvedValueOnce(json([{ ...car, quantity: 7 }]));
+    render(<App />);
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole('button', { name: 'Restock' }));
+    const dialog = within(screen.getByRole('dialog'));
+    await user.clear(dialog.getByLabelText('Quantity to add'));
+    await user.type(dialog.getByLabelText('Quantity to add'), '5');
+    await user.click(dialog.getByRole('button', { name: 'Restock vehicle' }));
+    expect(await screen.findByText('7 in stock')).toBeInTheDocument();
+    expect(fetchMock.mock.calls[1][0]).toBe('/api/vehicles/123/restock');
+    expect(JSON.parse(fetchMock.mock.calls[1][1]!.body as string)).toEqual({ quantity: 5 });
+  });
+
+  it('rejects fractional restock quantities in the form', async () => {
+    render(<App />);
+    await userEvent.click(await screen.findByRole('button', { name: 'Restock' }));
+    const dialog = screen.getByRole('dialog');
+    fireEvent.change(within(dialog).getByLabelText('Quantity to add'), { target: { value: '1.5' } });
+    fireEvent.submit(dialog.querySelector('form')!);
+    expect(within(dialog).getByRole('alert')).toHaveTextContent('positive whole number');
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('confirms deletion and supports cancelling without deleting', async () => {
+    fetchMock.mockResolvedValueOnce(new Response(null, { status: 204 })).mockResolvedValueOnce(json([]));
+    render(<App />);
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole('button', { name: 'Delete' }));
+    expect(screen.getByRole('dialog')).toHaveTextContent('Volvo XC60');
+    await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Cancel' }));
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    await user.click(screen.getByRole('button', { name: 'Delete' }));
+    await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Delete vehicle' }));
+    expect(await screen.findByText('No vehicles yet')).toBeInTheDocument();
+    expect(fetchMock.mock.calls[1][1]!.method).toBe('DELETE');
+  });
+
+  it('keeps an unsuccessful edit open with the entered values and an error', async () => {
+    fetchMock.mockResolvedValueOnce(json({ error: 'Admin access required' }, 403));
+    render(<App />);
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole('button', { name: 'Edit' }));
+    const dialog = within(screen.getByRole('dialog'));
+    await user.click(dialog.getByRole('button', { name: 'Save vehicle' }));
+    expect(await dialog.findByRole('alert')).toHaveTextContent('Admin access required');
+    expect(dialog.getByLabelText('Model')).toHaveValue('XC60');
+    expect(dialog.getByRole('button', { name: 'Save vehicle' })).toBeEnabled();
+  });
+
+  it('prevents duplicate admin mutations while pending', async () => {
+    let finish!: (response: Response) => void;
+    fetchMock.mockReturnValueOnce(new Promise(resolve => { finish = resolve; })).mockResolvedValueOnce(json([car]));
+    render(<App />);
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole('button', { name: 'Edit' }));
+    await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Save vehicle' }));
+    const saving = screen.getByRole('button', { name: 'Saving…' });
+    expect(saving).toBeDisabled();
+    await user.click(saving);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    await act(async () => { finish(json(car)); });
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+  });
 });
 const fetchMock = vi.fn<typeof fetch>();
 
