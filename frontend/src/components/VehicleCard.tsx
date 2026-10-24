@@ -2,8 +2,9 @@ import type { Vehicle } from '../types';
 import { CarOutline } from './Brand';
 import { formatPrice } from '../money';
 
-export function VehicleCard({ vehicle, admin, disabled, purchasing, onPurchase }: {
+export function VehicleCard({ vehicle, admin, disabled, purchasing, onPurchase, onAdmin }: {
   vehicle: Vehicle; admin: boolean; disabled: boolean; purchasing: boolean; onPurchase: () => void;
+  onAdmin: (kind: 'edit' | 'restock' | 'delete') => void;
 }) {
   return <article className="vehicle-card" aria-label={`${vehicle.make} ${vehicle.model}`}>
     <div className="vehicle-art">
@@ -20,7 +21,7 @@ export function VehicleCard({ vehicle, admin, disabled, purchasing, onPurchase }
       <button className="button button-primary w-full" onClick={onPurchase} disabled={disabled || vehicle.quantity === 0}>
         {purchasing ? 'Purchasing…' : vehicle.quantity === 0 ? 'Out of stock' : 'Purchase'}
       </button>
-      {admin && <div className="admin-actions"><button>Edit</button><button>Restock</button><button className="delete-link">Delete</button></div>}
+      {admin && <div className="admin-actions"><button disabled={disabled} onClick={() => onAdmin('edit')}>Edit</button><button disabled={disabled} onClick={() => onAdmin('restock')}>Restock</button><button disabled={disabled} className="delete-link" onClick={() => onAdmin('delete')}>Delete</button></div>}
       <p className="vehicle-id" title={vehicle.id}>ID · {vehicle.id}</p>
     </div>
   </article>;
