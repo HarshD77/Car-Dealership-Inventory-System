@@ -11,10 +11,16 @@ export function authenticate(db: Db, secret: string): RequestHandler {
     let subject: string;
     try {
       const claims = jwt.verify(match[1], secret, {
-        algorithms: ['HS256'], issuer: 'car-dealership', audience: 'car-dealership-ui'
+        algorithms: ['HS256'],
+        issuer: 'car-dealership',
+        audience: 'car-dealership-ui',
       });
-      if (typeof claims === 'string' || typeof claims.sub !== 'string' ||
-          !/^[a-fA-F0-9]{24}$/.test(claims.sub)) throw new Error('Invalid subject');
+      if (
+        typeof claims === 'string' ||
+        typeof claims.sub !== 'string' ||
+        !/^[a-fA-F0-9]{24}$/.test(claims.sub)
+      )
+        throw new Error('Invalid subject');
       subject = claims.sub;
     } catch {
       throw new HttpError(401, 'Invalid or expired authentication token');

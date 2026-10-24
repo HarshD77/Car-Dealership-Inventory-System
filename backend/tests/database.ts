@@ -13,10 +13,11 @@ export async function testDatabase() {
   const isolatedUri = new URL(uri);
   isolatedUri.pathname = `/${db.databaseName}`;
   return {
-    db, uri: isolatedUri.toString(),
+    db,
+    uri: isolatedUri.toString(),
     async close() {
       await db.dropDatabase();
       await client.close();
-    }
+    },
   };
 }

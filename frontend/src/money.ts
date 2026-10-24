@@ -4,7 +4,8 @@ export function dollarsToCents(value: string): number {
   }
   const [dollars, cents = ''] = value.split('.');
   const result = BigInt(dollars) * 100n + BigInt(cents.padEnd(2, '0'));
-  if (result > BigInt(Number.MAX_SAFE_INTEGER)) throw new Error('Price exceeds the supported maximum.');
+  if (result > BigInt(Number.MAX_SAFE_INTEGER))
+    throw new Error('Price exceeds the supported maximum.');
   return Number(result);
 }
 

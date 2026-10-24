@@ -17,7 +17,9 @@ export function vehicleRoutes(db: Db) {
     res.json(await listVehicles(db, searchInput.parse(req.query)));
   });
   router.put('/:id', async (req, res) => {
-    res.json(await replaceVehicle(db, vehicleId.parse(req.params.id), vehicleInput.parse(req.body)));
+    res.json(
+      await replaceVehicle(db, vehicleId.parse(req.params.id), vehicleInput.parse(req.body)),
+    );
   });
   router.delete('/:id', requireAdmin, async (req, res) => {
     await deleteVehicle(db, vehicleId.parse(req.params.id));

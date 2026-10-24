@@ -13,7 +13,7 @@ export default defineConfig({
       include: ['src/**/*.ts'],
       exclude: ['src/server.ts', 'src/create-admin.ts'],
       reporter: ['text', 'html', 'json-summary', 'lcov'],
-      thresholds: { statements: 90, branches: 80, functions: 90, lines: 90 }
-    }
-  }
+      thresholds: { statements: 90, branches: 80, functions: 90, lines: 90 },
+    },
+  },
 });

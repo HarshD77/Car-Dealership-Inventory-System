@@ -1,5 +1,12 @@
-export interface User { id: string; email: string; role: 'user' | 'admin' }
-export interface Session { token: string; user: User }
+export interface User {
+  id: string;
+  email: string;
+  role: 'user' | 'admin';
+}
+export interface Session {
+  token: string;
+  user: User;
+}
 export interface Vehicle {
   id: string;
   make: string;

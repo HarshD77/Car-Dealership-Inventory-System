@@ -14,7 +14,7 @@ export default defineConfig({
       include: ['src/**/*.{ts,tsx}'],
       exclude: ['src/**/*.test.*', 'src/test-setup.ts', 'src/main.tsx', 'src/types.ts'],
       reporter: ['text', 'html', 'json-summary', 'lcov'],
-      thresholds: { statements: 85, branches: 75, functions: 85, lines: 85 }
-    }
-  }
+      thresholds: { statements: 85, branches: 75, functions: 85, lines: 85 },
+    },
+  },
 });

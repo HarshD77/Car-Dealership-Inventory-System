@@ -3,27 +3,56 @@ import { act, fireEvent, render, screen, waitFor, within } from '@testing-librar
 import userEvent from '@testing-library/user-event';
 import App from './App';
 
-const car = { id: '123', make: 'Volvo', model: 'XC60', category: 'SUV', price: 4890000, quantity: 2 };
-const session = { token: 'test-token', user: { id: 'user-id', email: 'driver@example.com', role: 'user' } };
-const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), {
-  status, headers: { 'Content-Type': 'application/json' }
-});
+const car = {
+  id: '123',
+  make: 'Volvo',
+  model: 'XC60',
+  category: 'SUV',
+  price: 4890000,
+  quantity: 2,
+};
+const session = {
+  token: 'test-token',
+  user: { id: 'user-id', email: 'driver@example.com', role: 'user' },
+};
+const json = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: { 'Content-Type': 'application/json' },
+  });
 
 describe('admin inventory forms', () => {
   beforeEach(() => {
-    sessionStorage.setItem('dealership-session', JSON.stringify({ ...session, user: { ...session.user, role: 'admin' } }));
+    sessionStorage.setItem(
+      'dealership-session',
+      JSON.stringify({ ...session, user: { ...session.user, role: 'admin' } }),
+    );
     fetchMock.mockResolvedValueOnce(json([car]));
   });
 
   it('adds a vehicle with integer-cent pricing and reloads inventory', async () => {
-    const added = { ...car, id: '456', make: 'Toyota', model: 'Corolla', category: 'Sedan', price: 2500001, quantity: 4 };
+    const added = {
+      ...car,
+      id: '456',
+      make: 'Toyota',
+      model: 'Corolla',
+      category: 'Sedan',
+      price: 2500001,
+      quantity: 4,
+    };
     fetchMock.mockResolvedValueOnce(json(added, 201)).mockResolvedValueOnce(json([car, added]));
     render(<App />);
     await screen.findByRole('heading', { name: 'XC60' });
     const user = userEvent.setup();
     await user.click(screen.getByRole('button', { name: 'Add vehicle' }));
     const dialog = within(screen.getByRole('dialog'));
-    for (const [label, value] of [['Make', 'Toyota'], ['Model', 'Corolla'], ['Category', 'Sedan'], ['Price ($)', '25000.01'], ['Quantity in stock', '4']]) {
+    for (const [label, value] of [
+      ['Make', 'Toyota'],
+      ['Model', 'Corolla'],
+      ['Category', 'Sedan'],
+      ['Price ($)', '25000.01'],
+      ['Quantity in stock', '4'],
+    ]) {
       await user.clear(dialog.getByLabelText(label));
       await user.type(dialog.getByLabelText(label), value);
     }
@@ -31,7 +60,13 @@ describe('admin inventory forms', () => {
     expect(await screen.findByRole('heading', { name: 'Corolla' })).toBeInTheDocument();
     expect(screen.getByRole('status')).toHaveTextContent('Vehicle added');
     expect(fetchMock.mock.calls[1][0]).toBe('/api/vehicles');
-    expect(JSON.parse(fetchMock.mock.calls[1][1]!.body as string)).toEqual({ make: 'Toyota', model: 'Corolla', category: 'Sedan', price: 2500001, quantity: 4 });
+    expect(JSON.parse(fetchMock.mock.calls[1][1]!.body as string)).toEqual({
+      make: 'Toyota',
+      model: 'Corolla',
+      category: 'Sedan',
+      price: 2500001,
+      quantity: 4,
+    });
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
@@ -55,7 +90,9 @@ describe('admin inventory forms', () => {
   });
 
   it('restocks using a positive integer and refreshes stock', async () => {
-    fetchMock.mockResolvedValueOnce(json({ ...car, quantity: 7 })).mockResolvedValueOnce(json([{ ...car, quantity: 7 }]));
+    fetchMock
+      .mockResolvedValueOnce(json({ ...car, quantity: 7 }))
+      .mockResolvedValueOnce(json([{ ...car, quantity: 7 }]));
     render(<App />);
     const user = userEvent.setup();
     await user.click(await screen.findByRole('button', { name: 'Restock' }));
@@ -72,14 +109,18 @@ describe('admin inventory forms', () => {
     render(<App />);
     await userEvent.click(await screen.findByRole('button', { name: 'Restock' }));
     const dialog = screen.getByRole('dialog');
-    fireEvent.change(within(dialog).getByLabelText('Quantity to add'), { target: { value: '1.5' } });
+    fireEvent.change(within(dialog).getByLabelText('Quantity to add'), {
+      target: { value: '1.5' },
+    });
     fireEvent.submit(dialog.querySelector('form')!);
     expect(within(dialog).getByRole('alert')).toHaveTextContent('positive whole number');
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
   it('confirms deletion and supports cancelling without deleting', async () => {
-    fetchMock.mockResolvedValueOnce(new Response(null, { status: 204 })).mockResolvedValueOnce(json([]));
+    fetchMock
+      .mockResolvedValueOnce(new Response(null, { status: 204 }))
+      .mockResolvedValueOnce(json([]));
     render(<App />);
     const user = userEvent.setup();
     await user.click(await screen.findByRole('button', { name: 'Delete' }));
@@ -87,7 +128,9 @@ describe('admin inventory forms', () => {
     await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Cancel' }));
     expect(fetchMock).toHaveBeenCalledTimes(1);
     await user.click(screen.getByRole('button', { name: 'Delete' }));
-    await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Delete vehicle' }));
+    await user.click(
+      within(screen.getByRole('dialog')).getByRole('button', { name: 'Delete vehicle' }),
+    );
     expect(await screen.findByText('No vehicles yet')).toBeInTheDocument();
     expect(fetchMock.mock.calls[1][1]!.method).toBe('DELETE');
   });
@@ -106,16 +149,26 @@ describe('admin inventory forms', () => {
 
   it('prevents duplicate admin mutations while pending', async () => {
     let finish!: (response: Response) => void;
-    fetchMock.mockReturnValueOnce(new Promise(resolve => { finish = resolve; })).mockResolvedValueOnce(json([car]));
+    fetchMock
+      .mockReturnValueOnce(
+        new Promise((resolve) => {
+          finish = resolve;
+        }),
+      )
+      .mockResolvedValueOnce(json([car]));
     render(<App />);
     const user = userEvent.setup();
     await user.click(await screen.findByRole('button', { name: 'Edit' }));
-    await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Save vehicle' }));
+    await user.click(
+      within(screen.getByRole('dialog')).getByRole('button', { name: 'Save vehicle' }),
+    );
     const saving = screen.getByRole('button', { name: 'Saving…' });
     expect(saving).toBeDisabled();
     await user.click(saving);
     expect(fetchMock).toHaveBeenCalledTimes(2);
-    await act(async () => { finish(json(car)); });
+    await act(async () => {
+      finish(json(car));
+    });
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
   });
 });
@@ -146,8 +199,13 @@ describe('authentication and inventory dashboard', () => {
     expect(screen.getByText('SUV')).toBeInTheDocument();
     expect(screen.getByText('2 in stock')).toBeInTheDocument();
     expect(fetchMock.mock.calls[0][0]).toBe('/api/auth/login');
-    expect(JSON.parse(fetchMock.mock.calls[0][1]!.body as string)).toEqual({ email: 'driver@example.com', password: 'correct-horse-42' });
-    expect(fetchMock.mock.calls[1][1]!.headers).toMatchObject({ Authorization: 'Bearer test-token' });
+    expect(JSON.parse(fetchMock.mock.calls[0][1]!.body as string)).toEqual({
+      email: 'driver@example.com',
+      password: 'correct-horse-42',
+    });
+    expect(fetchMock.mock.calls[1][1]!.headers).toMatchObject({
+      Authorization: 'Bearer test-token',
+    });
     expect(screen.queryByRole('button', { name: 'Add vehicle' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument();
   });
@@ -175,7 +233,10 @@ describe('authentication and inventory dashboard', () => {
   });
 
   it('shows inventory management controls to admins', async () => {
-    sessionStorage.setItem('dealership-session', JSON.stringify({ ...session, user: { ...session.user, role: 'admin' } }));
+    sessionStorage.setItem(
+      'dealership-session',
+      JSON.stringify({ ...session, user: { ...session.user, role: 'admin' } }),
+    );
     fetchMock.mockResolvedValueOnce(json([car]));
     render(<App />);
     expect(await screen.findByRole('button', { name: 'Add vehicle' })).toBeInTheDocument();
@@ -194,27 +255,48 @@ describe('authentication and inventory dashboard', () => {
 
   it('prevents duplicate login submissions while pending', async () => {
     let finish!: (response: Response) => void;
-    fetchMock.mockReturnValueOnce(new Promise(resolve => { finish = resolve; }));
+    fetchMock.mockReturnValueOnce(
+      new Promise((resolve) => {
+        finish = resolve;
+      }),
+    );
     render(<App />);
     await signIn();
     expect(screen.getByRole('button', { name: 'Signing in…' })).toBeDisabled();
     expect(fetchMock).toHaveBeenCalledTimes(1);
-    await act(async () => { finish(json({ error: 'Try again' }, 500)); });
+    await act(async () => {
+      finish(json({ error: 'Try again' }, 500));
+    });
   });
 
   it('combines search fields, converts dollars to cents, and clears filters', async () => {
     sessionStorage.setItem('dealership-session', JSON.stringify(session));
-    fetchMock.mockResolvedValueOnce(json([car])).mockResolvedValueOnce(json([])).mockResolvedValueOnce(json([car]));
+    fetchMock
+      .mockResolvedValueOnce(json([car]))
+      .mockResolvedValueOnce(json([]))
+      .mockResolvedValueOnce(json([car]));
     render(<App />);
     await screen.findByRole('heading', { name: 'XC60' });
     const user = userEvent.setup();
-    for (const [label, value] of [['Make', 'Volvo'], ['Model', 'XC'], ['Category', 'SUV'], ['Min price ($)', '12.34'], ['Max price ($)', '48900']]) {
+    for (const [label, value] of [
+      ['Make', 'Volvo'],
+      ['Model', 'XC'],
+      ['Category', 'SUV'],
+      ['Min price ($)', '12.34'],
+      ['Max price ($)', '48900'],
+    ]) {
       await user.type(screen.getByLabelText(label, { exact: true }), value);
     }
     await user.click(screen.getByRole('button', { name: 'Apply filters' }));
     expect(await screen.findByText('No matching vehicles')).toBeInTheDocument();
     const query = new URL(String(fetchMock.mock.calls[1][0]), 'http://localhost').searchParams;
-    expect(Object.fromEntries(query)).toEqual({ make: 'Volvo', model: 'XC', category: 'SUV', minPrice: '1234', maxPrice: '4890000' });
+    expect(Object.fromEntries(query)).toEqual({
+      make: 'Volvo',
+      model: 'XC',
+      category: 'SUV',
+      minPrice: '1234',
+      maxPrice: '4890000',
+    });
     await user.click(screen.getByRole('button', { name: 'Clear filters' }));
     expect(await screen.findByRole('heading', { name: 'XC60' })).toBeInTheDocument();
     expect(screen.getByLabelText('Make', { exact: true })).toHaveValue('');
@@ -230,14 +312,22 @@ describe('authentication and inventory dashboard', () => {
     await user.type(screen.getByLabelText('Min price ($)'), '100');
     await user.type(screen.getByLabelText('Max price ($)'), '10');
     await user.click(screen.getByRole('button', { name: 'Apply filters' }));
-    expect(screen.getByRole('alert')).toHaveTextContent('Minimum price must not exceed maximum price');
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Minimum price must not exceed maximum price',
+    );
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
   it('purchases once, disables requests while pending, and refreshes inventory', async () => {
     sessionStorage.setItem('dealership-session', JSON.stringify(session));
     let finish!: (response: Response) => void;
-    fetchMock.mockResolvedValueOnce(json([car])).mockReturnValueOnce(new Promise(resolve => { finish = resolve; }))
+    fetchMock
+      .mockResolvedValueOnce(json([car]))
+      .mockReturnValueOnce(
+        new Promise((resolve) => {
+          finish = resolve;
+        }),
+      )
       .mockResolvedValueOnce(json([{ ...car, quantity: 1 }]));
     render(<App />);
     const purchase = await screen.findByRole('button', { name: 'Purchase' });
@@ -246,7 +336,9 @@ describe('authentication and inventory dashboard', () => {
     expect(screen.getByRole('button', { name: 'Purchasing…' })).toBeDisabled();
     await user.click(screen.getByRole('button', { name: 'Purchasing…' }));
     expect(fetchMock).toHaveBeenCalledTimes(2);
-    await act(async () => { finish(json({ ...car, quantity: 1 })); });
+    await act(async () => {
+      finish(json({ ...car, quantity: 1 }));
+    });
     expect(await screen.findByText('1 in stock')).toBeInTheDocument();
     expect(screen.getByRole('status')).toHaveTextContent('Purchased one Volvo XC60');
     expect(fetchMock.mock.calls[1][0]).toBe('/api/vehicles/123/purchase');
@@ -255,7 +347,9 @@ describe('authentication and inventory dashboard', () => {
 
   it('shows stock conflicts and refreshes stale inventory', async () => {
     sessionStorage.setItem('dealership-session', JSON.stringify(session));
-    fetchMock.mockResolvedValueOnce(json([car])).mockResolvedValueOnce(json({ error: 'Vehicle is out of stock' }, 409))
+    fetchMock
+      .mockResolvedValueOnce(json([car]))
+      .mockResolvedValueOnce(json({ error: 'Vehicle is out of stock' }, 409))
       .mockResolvedValueOnce(json([{ ...car, quantity: 0 }]));
     render(<App />);
     await userEvent.click(await screen.findByRole('button', { name: 'Purchase' }));
@@ -274,9 +368,13 @@ describe('authentication and inventory dashboard', () => {
 
   it('returns to sign-in on expired sessions and clears stored credentials', async () => {
     sessionStorage.setItem('dealership-session', JSON.stringify(session));
-    fetchMock.mockResolvedValueOnce(json({ error: 'Invalid or expired authentication token' }, 401));
+    fetchMock.mockResolvedValueOnce(
+      json({ error: 'Invalid or expired authentication token' }, 401),
+    );
     render(<App />);
-    expect(await screen.findByText('Your session has expired. Please sign in again.')).toBeInTheDocument();
+    expect(
+      await screen.findByText('Your session has expired. Please sign in again.'),
+    ).toBeInTheDocument();
     expect(sessionStorage.getItem('dealership-session')).toBeNull();
   });
 
