@@ -9,6 +9,7 @@ test-results/
 tmp/
 screenshots/
 PROMPTS.md
+docs/ai-conversation/
 package-lock.json
 .env
 .env.*

@@ -1,71 +1,71 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuites name="vitest tests" tests="32" failures="0" errors="0" time="8.7410171">
-    <testsuite name="src/App.test.tsx" timestamp="2026-10-24T17:36:20.303Z" hostname="DESKTOP-OOQ13MG" tests="20" failures="0" errors="0" skipped="0" time="8.7287367">
-        <testcase classname="src/App.test.tsx" name="admin inventory forms &gt; adds a vehicle with integer-cent pricing and reloads inventory" time="1.8015782">
+<testsuites name="vitest tests" tests="32" failures="0" errors="0" time="8.9313493">
+    <testsuite name="src/App.test.tsx" timestamp="2026-10-24T17:53:17.886Z" hostname="DESKTOP-OOQ13MG" tests="20" failures="0" errors="0" skipped="0" time="8.8939936">
+        <testcase classname="src/App.test.tsx" name="admin inventory forms &gt; adds a vehicle with integer-cent pricing and reloads inventory" time="1.9062882">
         </testcase>
-        <testcase classname="src/App.test.tsx" name="admin inventory forms &gt; prefills and updates a vehicle with the full replacement contract" time="0.6648294">
+        <testcase classname="src/App.test.tsx" name="admin inventory forms &gt; prefills and updates a vehicle with the full replacement contract" time="0.5862093">
         </testcase>
-        <testcase classname="src/App.test.tsx" name="admin inventory forms &gt; restocks using a positive integer and refreshes stock" time="0.3331836">
+        <testcase classname="src/App.test.tsx" name="admin inventory forms &gt; restocks using a positive integer and refreshes stock" time="0.3306852">
         </testcase>
-        <testcase classname="src/App.test.tsx" name="admin inventory forms &gt; rejects fractional restock quantities in the form" time="0.1449943">
+        <testcase classname="src/App.test.tsx" name="admin inventory forms &gt; rejects fractional restock quantities in the form" time="0.1503147">
         </testcase>
-        <testcase classname="src/App.test.tsx" name="admin inventory forms &gt; confirms deletion and supports cancelling without deleting" time="0.3563196">
+        <testcase classname="src/App.test.tsx" name="admin inventory forms &gt; confirms deletion and supports cancelling without deleting" time="0.3834219">
         </testcase>
-        <testcase classname="src/App.test.tsx" name="admin inventory forms &gt; keeps an unsuccessful edit open with the entered values and an error" time="0.234882">
+        <testcase classname="src/App.test.tsx" name="admin inventory forms &gt; keeps an unsuccessful edit open with the entered values and an error" time="0.2406629">
         </testcase>
-        <testcase classname="src/App.test.tsx" name="admin inventory forms &gt; prevents duplicate admin mutations while pending" time="0.2648712">
+        <testcase classname="src/App.test.tsx" name="admin inventory forms &gt; prevents duplicate admin mutations while pending" time="0.3194377">
         </testcase>
-        <testcase classname="src/App.test.tsx" name="authentication and inventory dashboard &gt; signs in, requests the real API contract, and shows vehicle information" time="0.7987154">
+        <testcase classname="src/App.test.tsx" name="authentication and inventory dashboard &gt; signs in, requests the real API contract, and shows vehicle information" time="0.753855">
         </testcase>
-        <testcase classname="src/App.test.tsx" name="authentication and inventory dashboard &gt; registers an account without submitting a role" time="0.7070292">
+        <testcase classname="src/App.test.tsx" name="authentication and inventory dashboard &gt; registers an account without submitting a role" time="0.7139985">
         </testcase>
-        <testcase classname="src/App.test.tsx" name="authentication and inventory dashboard &gt; disables sold-out purchases and hides admin controls for regular users" time="0.0856888">
+        <testcase classname="src/App.test.tsx" name="authentication and inventory dashboard &gt; disables sold-out purchases and hides admin controls for regular users" time="0.0691399">
         </testcase>
-        <testcase classname="src/App.test.tsx" name="authentication and inventory dashboard &gt; shows inventory management controls to admins" time="0.0871045">
+        <testcase classname="src/App.test.tsx" name="authentication and inventory dashboard &gt; shows inventory management controls to admins" time="0.0815297">
         </testcase>
-        <testcase classname="src/App.test.tsx" name="authentication and inventory dashboard &gt; shows login errors and lets the user retry" time="0.694022">
+        <testcase classname="src/App.test.tsx" name="authentication and inventory dashboard &gt; shows login errors and lets the user retry" time="0.65245">
         </testcase>
-        <testcase classname="src/App.test.tsx" name="authentication and inventory dashboard &gt; prevents duplicate login submissions while pending" time="0.7356364">
+        <testcase classname="src/App.test.tsx" name="authentication and inventory dashboard &gt; prevents duplicate login submissions while pending" time="0.6957662">
         </testcase>
-        <testcase classname="src/App.test.tsx" name="authentication and inventory dashboard &gt; combines search fields, converts dollars to cents, and clears filters" time="0.8684173">
+        <testcase classname="src/App.test.tsx" name="authentication and inventory dashboard &gt; combines search fields, converts dollars to cents, and clears filters" time="0.8996803">
         </testcase>
-        <testcase classname="src/App.test.tsx" name="authentication and inventory dashboard &gt; rejects reversed price ranges before making a request" time="0.2598409">
+        <testcase classname="src/App.test.tsx" name="authentication and inventory dashboard &gt; rejects reversed price ranges before making a request" time="0.2892502">
         </testcase>
-        <testcase classname="src/App.test.tsx" name="authentication and inventory dashboard &gt; purchases once, disables requests while pending, and refreshes inventory" time="0.2280725">
+        <testcase classname="src/App.test.tsx" name="authentication and inventory dashboard &gt; purchases once, disables requests while pending, and refreshes inventory" time="0.2118214">
         </testcase>
-        <testcase classname="src/App.test.tsx" name="authentication and inventory dashboard &gt; shows stock conflicts and refreshes stale inventory" time="0.1859467">
+        <testcase classname="src/App.test.tsx" name="authentication and inventory dashboard &gt; shows stock conflicts and refreshes stale inventory" time="0.2870618">
         </testcase>
-        <testcase classname="src/App.test.tsx" name="authentication and inventory dashboard &gt; lets the user retry a failed inventory load" time="0.1099481">
+        <testcase classname="src/App.test.tsx" name="authentication and inventory dashboard &gt; lets the user retry a failed inventory load" time="0.0994385">
         </testcase>
-        <testcase classname="src/App.test.tsx" name="authentication and inventory dashboard &gt; returns to sign-in on expired sessions and clears stored credentials" time="0.0301152">
+        <testcase classname="src/App.test.tsx" name="authentication and inventory dashboard &gt; returns to sign-in on expired sessions and clears stored credentials" time="0.0791997">
         </testcase>
-        <testcase classname="src/App.test.tsx" name="authentication and inventory dashboard &gt; signs out and safely ignores corrupted session storage" time="0.1333141">
+        <testcase classname="src/App.test.tsx" name="authentication and inventory dashboard &gt; signs out and safely ignores corrupted session storage" time="0.1388892">
         </testcase>
     </testsuite>
-    <testsuite name="src/money.test.ts" timestamp="2026-10-24T17:36:20.318Z" hostname="DESKTOP-OOQ13MG" tests="12" failures="0" errors="0" skipped="0" time="0.0122804">
-        <testcase classname="src/money.test.ts" name="money conversion at the UI boundary &gt; converts 0 exactly" time="0.004358">
+    <testsuite name="src/money.test.ts" timestamp="2026-10-24T17:53:17.906Z" hostname="DESKTOP-OOQ13MG" tests="12" failures="0" errors="0" skipped="0" time="0.0373557">
+        <testcase classname="src/money.test.ts" name="money conversion at the UI boundary &gt; converts 0 exactly" time="0.0261924">
         </testcase>
-        <testcase classname="src/money.test.ts" name="money conversion at the UI boundary &gt; converts 12.34 exactly" time="0.0004657">
+        <testcase classname="src/money.test.ts" name="money conversion at the UI boundary &gt; converts 12.34 exactly" time="0.0005676">
         </testcase>
-        <testcase classname="src/money.test.ts" name="money conversion at the UI boundary &gt; converts 1.01 exactly" time="0.0002326">
+        <testcase classname="src/money.test.ts" name="money conversion at the UI boundary &gt; converts 1.01 exactly" time="0.0003613">
         </testcase>
-        <testcase classname="src/money.test.ts" name="money conversion at the UI boundary &gt; converts 1.1 exactly" time="0.0001985">
+        <testcase classname="src/money.test.ts" name="money conversion at the UI boundary &gt; converts 1.1 exactly" time="0.0002627">
         </testcase>
-        <testcase classname="src/money.test.ts" name="money conversion at the UI boundary &gt; converts 90071992547409.91 exactly" time="0.0001914">
+        <testcase classname="src/money.test.ts" name="money conversion at the UI boundary &gt; converts 90071992547409.91 exactly" time="0.0002692">
         </testcase>
-        <testcase classname="src/money.test.ts" name="money conversion at the UI boundary &gt; rejects invalid or unsafe money " time="0.001695">
+        <testcase classname="src/money.test.ts" name="money conversion at the UI boundary &gt; rejects invalid or unsafe money " time="0.0040844">
         </testcase>
-        <testcase classname="src/money.test.ts" name="money conversion at the UI boundary &gt; rejects invalid or unsafe money NaN" time="0.0002892">
+        <testcase classname="src/money.test.ts" name="money conversion at the UI boundary &gt; rejects invalid or unsafe money NaN" time="0.0005051">
         </testcase>
-        <testcase classname="src/money.test.ts" name="money conversion at the UI boundary &gt; rejects invalid or unsafe money -1" time="0.0002682">
+        <testcase classname="src/money.test.ts" name="money conversion at the UI boundary &gt; rejects invalid or unsafe money -1" time="0.0004116">
         </testcase>
-        <testcase classname="src/money.test.ts" name="money conversion at the UI boundary &gt; rejects invalid or unsafe money 1.001" time="0.0002792">
+        <testcase classname="src/money.test.ts" name="money conversion at the UI boundary &gt; rejects invalid or unsafe money 1.001" time="0.0003639">
         </testcase>
-        <testcase classname="src/money.test.ts" name="money conversion at the UI boundary &gt; rejects invalid or unsafe money Infinity" time="0.0002466">
+        <testcase classname="src/money.test.ts" name="money conversion at the UI boundary &gt; rejects invalid or unsafe money Infinity" time="0.0002914">
         </testcase>
-        <testcase classname="src/money.test.ts" name="money conversion at the UI boundary &gt; rejects invalid or unsafe money 1e3" time="0.0002264">
+        <testcase classname="src/money.test.ts" name="money conversion at the UI boundary &gt; rejects invalid or unsafe money 1e3" time="0.0002755">
         </testcase>
-        <testcase classname="src/money.test.ts" name="money conversion at the UI boundary &gt; rejects invalid or unsafe money 90071992547409.92" time="0.0002621">
+        <testcase classname="src/money.test.ts" name="money conversion at the UI boundary &gt; rejects invalid or unsafe money 90071992547409.92" time="0.000359">
         </testcase>
     </testsuite>
 </testsuites>
